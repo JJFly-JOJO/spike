@@ -29,7 +29,7 @@ riscv64-linux-gnu-gcc --version
 也可以使用 `riscv64-unknown-elf` 裸机工具链，但须另配可用的目标 C 库。Ubuntu 22.04 的 `gcc-riscv64-unknown-elf` 包单独安装后没有 `stdio.h`，不能直接编译下文的 `printf` 示例。选用该工具链时，PK 的 `--host`、示例中的编译器名称也要一起改为 `riscv64-unknown-elf`。自行从源码编译可参考 [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain)。
 
 ### 1.3 编译安装 Spike (riscv-isa-sim)
-在本仓库根目录初始化子模块并编译 Spike。以下将安装结果放在当前项目目录，避免依赖系统级安装权限：
+在本仓库根目录初始化两个子模块并编译 Spike。子模块来自个人 fork 的 `develop` 分支，本仓库固定了已验证的提交；以下将安装结果放在当前项目目录，避免依赖系统级安装权限：
 ```bash
 git submodule update --init --recursive
 cd riscv-isa-sim
@@ -58,9 +58,9 @@ find install -type f -name pk
 
 PK 会安装到 `install/riscv64-linux-gnu/bin/pk`，也可以使用上面的 `find` 命令确认实际位置。这里单独编译 `pk`，不需要同时编译可选的 `bbl`。运行 Spike 时传入这个路径，避免假定 `pk` 已在 `PATH` 中。
 
-若 Ubuntu 22.04 的 binutils 报 `unknown CSR 'menvcfg'` 或 `unknown CSR 'senvcfg'`，请在 `riscv-pk` 源码根目录运行一次 `git apply ../patches/riscv-pk-ubuntu22-binutils.patch`，再回到 `build` 目录重新运行 `make -j4 pk`。补丁使用对应 CSR 的数值编码（`0x30a` 和 `0x10a`），保持原来的 CSR 操作；本项目使用的 pk 源码提交为 `9c61d29`。其他版本先检查补丁能否正确应用。
+本仓库引用的 `riscv-pk` fork 的 `develop` 分支已包含 CSR 兼容修改：用 `0x30a` 和 `0x10a` 分别代替旧版 binutils 不识别的 `menvcfg` 和 `senvcfg` 名称。因此按上述步骤直接构建即可。`patches/riscv-pk-ubuntu22-binutils.patch` 保留为相对上游提交 `9c61d29` 的差异参考，已使用本仓库子模块的源码时不要重复应用。
 
-本项目当前 WSL2 环境也准备了无需系统级安装的版本：Spike 位于 `install/bin/spike`，PK 位于 `install/riscv64-unknown-elf/bin/pk`，裸机 GCC 与 Picolibc 解包在 `toolchain/usr/`。若需按当前目录里的工具链重建 PK，可运行 `scripts/build-local-pk.sh`；脚本会应用上述 CSR 补丁，配置 PK 并仅构建 `pk`。该本地构建路径使用 `riscv64-unknown-elf`，与上面的 GNU/Linux 工具链示例是两种可选配置。
+本项目当前 WSL2 环境也准备了无需系统级安装的版本：Spike 位于 `install/bin/spike`，PK 位于 `install/riscv64-unknown-elf/bin/pk`，裸机 GCC 与 Picolibc 解包在 `toolchain/usr/`。若需按当前目录里的工具链重建 PK，可运行 `scripts/build-local-pk.sh`；脚本会配置 PK 并仅构建 `pk`。该本地构建路径使用 `riscv64-unknown-elf`，与上面的 GNU/Linux 工具链示例是两种可选配置。
 
 ---
 

@@ -6,15 +6,10 @@ toolchain_root="$project_root/toolchain/usr"
 pk_root="$project_root/riscv-pk"
 specs_file="$project_root/toolchain/picolibc-pk.specs"
 configure_specs_file="$project_root/toolchain/picolibc-local.specs"
-csr_patch="$project_root/patches/riscv-pk-ubuntu22-binutils.patch"
 
 sed "s#/usr/lib/picolibc#$toolchain_root/lib/picolibc#g" \
     "$toolchain_root/lib/picolibc/riscv64-unknown-elf/picolibc.specs" > "$configure_specs_file"
 sed 's/%{!T:-Tpicolibc.ld}//g' "$configure_specs_file" > "$specs_file"
-
-if ! git -C "$pk_root" apply --reverse --check "$csr_patch" 2>/dev/null; then
-    git -C "$pk_root" apply "$csr_patch"
-fi
 
 cross_cc="$toolchain_root/bin/riscv64-unknown-elf-gcc -B$toolchain_root/lib/riscv64-unknown-elf/bin/ -specs=$specs_file"
 configure_cc="$toolchain_root/bin/riscv64-unknown-elf-gcc -B$toolchain_root/lib/riscv64-unknown-elf/bin/ -specs=$configure_specs_file"
