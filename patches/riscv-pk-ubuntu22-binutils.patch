@@ -1,0 +1,41 @@
+diff --git a/machine/minit.c b/machine/minit.c
+index 2256863..9a704a4 100644
+--- a/machine/minit.c
++++ b/machine/minit.c
+@@ -247,7 +247,8 @@ void enter_supervisor_mode(void (*fn)(uintptr_t), uintptr_t arg0, uintptr_t arg1
+   mstatus = INSERT_FIELD(mstatus, MSTATUS_MPIE, 0);
+   write_csr(mstatus, mstatus);
+   write_csr(mscratch, MACHINE_STACK_TOP() - MENTRY_FRAME_SIZE);
+-  write_csr(menvcfg, MENVCFG_SSE | MENVCFG_CBCFE | INSERT_FIELD(0, MENVCFG_CBIE, 1));
++  // Binutils 2.35/2.38 do not recognize the menvcfg name; CSR 0x30a is equivalent.
++  write_csr(0x30a, MENVCFG_SSE | MENVCFG_CBCFE | INSERT_FIELD(0, MENVCFG_CBIE, 1));
+ #ifndef __riscv_flen
+   uintptr_t *p_fcsr = (uintptr_t*)(MACHINE_STACK_TOP() - MENTRY_FRAME_SIZE); // the x0's save slot
+   *p_fcsr = 0;
+diff --git a/pk/pk.c b/pk/pk.c
+index ebe501c..98ed27f 100644
+--- a/pk/pk.c
++++ b/pk/pk.c
+@@ -118,11 +118,11 @@ static void run_loaded_program(size_t argc, char** argv, uintptr_t kstack_top)
+     kassert(shadow_stack_bottom != (uintptr_t)-1);
+     size_t shadow_stack_top = shadow_stack_bottom + shadow_stack_size;
+ 
+-    set_csr(senvcfg, SENVCFG_SSE);
++    set_csr(0x10a, SENVCFG_SSE);
+     asm volatile ("csrw %0, %1" :: "I" (CSR_SSP), "r" (shadow_stack_top) : "memory");
+   }
+ 
+-  set_csr(senvcfg, SENVCFG_CBCFE | INSERT_FIELD(0, SENVCFG_CBIE, 1));
++  set_csr(0x10a, SENVCFG_CBCFE | INSERT_FIELD(0, SENVCFG_CBIE, 1));
+ 
+   // copy phdrs to user stack
+   size_t stack_top = current.stack_top - current.phdr_size;
+@@ -204,7 +204,7 @@ static void run_loaded_program(size_t argc, char** argv, uintptr_t kstack_top)
+   __riscv_flush_icache();
+   write_csr(sscratch, kstack_top);
+   if (zicfilp_enabled)
+-    set_csr(senvcfg, SENVCFG_LPE);
++    set_csr(0x10a, SENVCFG_LPE);
+   start_user(&tf);
+ }
+ 

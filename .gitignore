@@ -1,0 +1,10 @@
+# Local build outputs and downloaded toolchains
+/install/
+/toolchain/
+/packages/
+/examples/*.o
+/examples/*.elf
+
+# Build directories inside checked-out source trees
+/riscv-isa-sim/build/
+/riscv-pk/build/
