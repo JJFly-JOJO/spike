@@ -32,6 +32,8 @@ riscv64-linux-gnu-gcc --version
 在本仓库根目录初始化两个子模块并编译 Spike。子模块来自个人 fork 的 `develop` 分支，本仓库固定了已验证的提交；以下将安装结果放在当前项目目录，避免依赖系统级安装权限：
 ```bash
 git submodule update --init --recursive
+git -C riscv-isa-sim switch develop
+git -C riscv-pk switch develop
 cd riscv-isa-sim
 mkdir -p build && cd build
 ../configure --prefix="$(cd ../.. && pwd)/install"
@@ -40,7 +42,7 @@ make install
 cd ../..
 export PATH="$(pwd)/install/bin:$PATH"
 ```
-如果 `git submodule update` 失败，先检查网络连接并重试。子模块目录为空时不能继续编译。验证安装：输入 `spike --help`，应看到版本和使用说明。后续打开新终端时需重新设置上述 `PATH`，或者将其加入 shell 配置文件。
+子模块初次检出时默认停在固定提交（detached HEAD）；上面的 `switch` 命令切换到个人 fork 的 `develop` 分支，方便后续提交源码改动。如果 `git submodule update` 失败，先检查网络连接并重试。子模块目录为空时不能继续编译。验证安装：输入 `spike --help`，应看到版本和使用说明。后续打开新终端时需重新设置上述 `PATH`，或者将其加入 shell 配置文件。
 
 ### 1.4 编译安装 Proxy Kernel (PK)
 PK 用于接管 C 语言程序中的系统调用（如 `printf`），将其转发给宿主机操作系统。

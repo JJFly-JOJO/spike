@@ -9,7 +9,11 @@
 ```bash
 git clone --recurse-submodules https://github.com/JJFly-JOJO/spike.git
 cd spike
+git -C riscv-isa-sim switch develop
+git -C riscv-pk switch develop
 ```
+
+子模块初始化后默认停在固定提交；上面的 `switch` 命令将工作区切到各自 fork 的 `develop` 分支。修改子模块时，先在子模块内提交并推送 `develop`，随后在主仓库提交更新后的子模块引用。
 
 构建依赖、交叉工具链和编译命令见指南的“阶段一”。完成安装后，可运行 `examples/hello-bare.S` 验证裸机执行，再运行 `examples/hello.c` 验证 PK 与 C 库。
 
